@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Universal Ticket Booking System</title>
+    <style>
+        #events_h2 {
+            margin-bottom: 10px;
+        }
+
+        #movie_btn,
+        #concert_btn,
+        #train_btn {
+            margin-top: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #ffffff;
+        }
+
+        button {
+            padding: 8px 16px;
+            margin: 8px 5px;
+            border: none;
+            background-color: #1e88e5;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+
+        button:hover {
+            background-color: #1565c0;
+        }
+
+        #logout_btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #555;
+            background-color: #1e1e1e;
+            color: #eee;
+            width: 100%;
+            max-width: 250px;
+            box-sizing: border-box;
+        }
+
+        #profile_section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #333;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        li {
+            margin-bottom: 4px;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #444;
+            margin: 10px 0;
+        }
+
+        #show_btn,
+        #ticket_summary {
+            margin-top: 10px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <button onclick="loadProfile()">Profile</button>
+    <div id="profile_section" style="display:none;"></div>
+
+    <h1>Universal Ticket Booking System</h1>
+    <h2 id="events_h2">Events</h2>
+    <!-- <h4 id="wallet_display">Wallet:Rs.0</h4> -->
+    <button id="movie_btn">Movie</button>
+    <button id="concert_btn">Concert</button>
+    <button id="train_btn">Train</button>
+    <canvas id="canvas_seat_display"></canvas>
+    <div id="show_btn"></div>
+    <div id="ticket_summary"></div>
+    <button id="book_again_btn" style="display:none;">Book Something Else</button>
+    <button id='logout_btn' onclick="logout()">Logout</button>
+
+    <script>
+        let data_base = [
+            {
+                name: "movie",
+                steps: ["movie", "date", "time"],
+                options: {
+                    movie: ["movie_1", "movie_2", "movie_3"],
+                    date: ["date_1", "date_2", "date_3"],
+                    time: ["time_1", "time_2", "time_3"]
+                },
+                events: ["movie_1", "movie_2", "movie_3"]
+            },
+            {
+                name: "train",
+                steps: ["source", "destination", 'trains', "date", "time", "Class"],
+                options: {
+                    source: ["station_1", "station_2"],
+                    destination: ["station_3", "station_4"],
+                    trains: ["train_1", "train_2"],
+                    date: ["date_1", "date_2"],
+                    time: ["time_1", "time_2", "time_3"],
+                    Class: ["AC", "Non-AC"]
+                },
+                events: ["train_1", "train_2"]
+            },
+            {
+                name: "concert",
+                steps: ["concert", "date", "time", "section"],
+                options: {
+                    concert: ["concert_1", "concert_2"],
+                    date: ["date_1", "date_2"],
+                    time: ["time_1", "time_2", "time_3"],
+                    section: ["VIP", "Economy"]
+                },
+                events: ["concert_1", "concert_2"]
+            }
+        ];
+
+        fetch('/get-events')
+            .then(res => res.json())
+            .then(globalEvents => {
+                globalEvents.forEach(ev => {
+                    const category = data_base.find(d => d.name === ev.event);
+                    if (!category) return;
+
+                    const stepKeys = Object.keys(ev).filter(k => k !== 'event' && k !== 'tickets');
+
+                    stepKeys.forEach(step => {
+                        if (!category.options[step].includes(ev[step])) {
+                            category.options[step].push(ev[step]);
+                        }
+                    });
+
+                    const mainEvent = ev[stepKeys[0]];
+                    if (!category.events.includes(mainEvent)) {
+                        category.events.push(mainEvent);
+                    }
+                });
+
+                eventPage();
+
+                fetch('/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: localStorage.getItem('username') })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('wallet_display').textContent = `Wallet: ₹${data.wallet}`;
+                    });
+
+            });
+
+
+
+
+        let userSelection = {};
+
+        function eventPage() {
+            for (let i of data_base) {
+                let label = document.createElement('h3');
+                label.textContent = i.name;
+                document.getElementById('show_btn').appendChild(label);
+                for (let j of i.events) {
+                    let temp = document.createElement('button');
+                    temp.textContent = j;
+                    document.getElementById('show_btn').appendChild(temp);
+
+                    temp.addEventListener('click', () => {
+                        userSelection = {};
+                        userSelection.event = i.name;
+                        userSelection[i.steps[0]] = j;
+                        show_only();
+                        displayNext(data_base.indexOf(i), 1);
+                    });
+                }
+            }
+        }
+
+        function showSummary() {
+            let ticket_summary = document.getElementById('ticket_summary');
+            ticket_summary.textContent = 'Ticket Summary';
+            // for (let i in userSelection) {
+            //     let temp = document.createElement('p');
+            //     temp.textContent = `${i} : ${userSelection[i]}`;
+            //     ticket_summary.appendChild(temp);
+            // }
+
+            let price = (userSelection.tickets || 1) * 100;
+
+            for (let i in userSelection) {
+                let temp = document.createElement('p');
+                temp.textContent = `${i} : ${userSelection[i]}`;
+                ticket_summary.appendChild(temp);
+            }
+
+            let total = document.createElement('p');
+            total.innerHTML = `<strong>Total Price:</strong> ₹${price}`;
+            ticket_summary.appendChild(total);
+
+        }
+
+        function displayNext(eventIndex, currentStepIndex) {
+            let i = currentStepIndex;
+            if (i < data_base[eventIndex].steps.length) {
+                let currentStep = data_base[eventIndex].steps[i];
+                let displayList = data_base[eventIndex].options[currentStep];
+
+                document.getElementById('show_btn').innerHTML = '';
+                let label = document.createElement('h3');
+                label.textContent = currentStep;
+                document.getElementById('show_btn').appendChild(label);
+
+                for (let j of displayList) {
+                    let temp = document.createElement('button');
+                    temp.textContent = j;
+                    temp.id = j;
+                    document.getElementById('show_btn').appendChild(temp);
+
+                    temp.addEventListener('click', () => {
+                        userSelection[currentStep] = j;
+                        displayNext(eventIndex, currentStepIndex + 1);
+                    })
+                }
+
+            }
+            else {
+                let num_ticket = prompt('No. of tickets required:');
+                userSelection["tickets"] = num_ticket; // Add tickets as a key-value
+
+                fetch('/save-booking', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: localStorage.getItem('username'),
+                        booking: userSelection
+                    })
+                });
+
+                fetch('/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: localStorage.getItem('username') })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('wallet_display').textContent = `Wallet: ₹${data.wallet}`;
+                    });
+
+
+                showSummary();
+                document.getElementById('show_btn').innerHTML = '';
+                document.getElementById('book_again_btn').style.display = 'inline-block';
+            }
+        }
+
+        document.getElementById("movie_btn").addEventListener('click', () => {
+            userSelection.event = 'movie';
+            show_only();
+            displayNext(0, 0);
+        });
+        document.getElementById("concert_btn").addEventListener('click', () => {
+            userSelection.event = 'concert';
+            show_only();
+            displayNext(2, 0);
+
+        });
+        document.getElementById("train_btn").addEventListener('click', () => {
+            userSelection.event = 'train';
+            show_only();
+            displayNext(1, 0);
+        });
+
+        function show_only() {
+            document.getElementById("movie_btn").style.display = 'none';
+            document.getElementById("concert_btn").style.display = 'none';
+            document.getElementById("train_btn").style.display = 'none';
+            document.getElementById("show_btn").style.display = 'block';
+        }
+
+        // let movie_route = ['movie', 'date', 'time'];
+        // let concert_route = ['concert', 'date', 'time'];
+        // let train_route = ['train', 'stations', 'date', 'time'];
+
+        function loadProfile() {
+            const username = localStorage.getItem('username');
+
+            fetch('/profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    let div = document.getElementById('profile_section');
+                    div.style.display = 'block';
+
+                    div.innerHTML = `
+        <h3>Welcome, ${username}</h3>
+        <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+        <p><strong>Wallet Balance:</strong> ₹${data.wallet}</p>
+        <h4>Booking History:</h4>
+      `;
+
+                    if (!data.bookings.length) {
+                        div.innerHTML += "<p>No bookings yet.</p>";
+                    } else {
+                        data.bookings.forEach(b => {
+                            let bookingDetails = "<ul>";
+                            for (let key in b) {
+                                bookingDetails += `<li><strong>${key}</strong>: ${b[key]}</li>`;
+                            }
+                            bookingDetails += "</ul><hr>";
+                            div.innerHTML += bookingDetails;
+                        });
+                    }
+                });
+        }
+
+
+        document.getElementById('book_again_btn').addEventListener('click', () => {
+            document.getElementById("movie_btn").style.display = 'inline-block';
+            document.getElementById("concert_btn").style.display = 'inline-block';
+            document.getElementById("train_btn").style.display = 'inline-block';
+            document.getElementById("show_btn").innerHTML = '';
+            document.getElementById("ticket_summary").innerHTML = '';
+            document.getElementById("book_again_btn").style.display = 'none';
+        });
+
+        function logout() {
+            localStorage.removeItem('username');
+            window.location.href = 'index.html';
+        }
+
+
+
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Universal Ticket Booking System</title>
+  <style>
+    #events_h2 {
+      margin-bottom: 10px;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: #ffffff;
+    }
+
+    button {
+      padding: 8px 16px;
+      margin: 8px 5px;
+      border: none;
+      background-color: #1e88e5;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+    }
+
+    input {
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 4px;
+      border: 1px solid #555;
+      background-color: #1e1e1e;
+      color: #eee;
+      width: 100%;
+      max-width: 250px;
+      box-sizing: border-box;
+    }
+
+    #profile_section {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #333;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 10px;
+    }
+
+    li {
+      margin-bottom: 4px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #444;
+      margin: 10px 0;
+    }
+
+    #show_btn,
+    #ticket_summary {
+      margin-top: 20px;
+    }
+  </style>
+
+</head>
+
+<body>
+  <h1>Universal Ticket Booking System</h1>
+  <p>Login</p>
+  <!-- <a href="user_1.4.html"><button id="user_btn">User</button></a> -->
+
+  <button id="user_btn">User</button>
+  <div id="login_modal" style="display:none;">
+    <input type="text" id="username" placeholder="Username"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+    <button id="login_submit">Login</button>
+    <p><a href="#" id="forgot_link">Forgot Password?</a></p>
+    <p><a href="#" id="signup_link">New User? Sign Up</a></p>
+  </div>
+
+  <button id="vendor_btn">Vendor</button>
+  <div id="vendor_modal" style="display:none;">
+    <input type="text" id="vendor_user" placeholder="Vendor ID"><br>
+    <input type="password" id="vendor_pass" placeholder="Password"><br>
+    <button id="vendor_login_submit">Login</button>
+    <p><a href="#" id="vendor_signup">New Vendor? Sign Up</a></p>
+  </div>
+
+  <button id="admin_btn">Admin</button>
+
+  <script>
+    document.getElementById('user_btn').onclick = () => {
+      document.getElementById('login_modal').style.display = 'block';
+    };
+
+    document.getElementById("admin_btn").addEventListener("click", () => {
+      const username = prompt("Enter admin username:");
+      const password = prompt("Enter admin password:");
+
+      if (username === "admin") {
+        fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              localStorage.setItem("username", "admin");
+              window.location.href = "admin.html";
+            } else {
+              alert("Invalid admin credentials");
+            }
+          });
+      } else {
+        alert("Only admin can log in here.");
+      }
+    });
+
+
+
+    document.getElementById('login_submit').onclick = async () => {
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: document.getElementById('username').value,
+          password: document.getElementById('password').value
+        })
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        localStorage.setItem('username', document.getElementById('username').value);
+        window.location.href = 'user_1.5.html';
+      } else {
+        alert('Invalid credentials');
+      }
+    };
+
+    document.getElementById('forgot_link').onclick = async () => {
+      const username = prompt("Enter your username:");
+      if (!username) return;
+
+      const res = await fetch('/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      });
+      const data = await res.json();
+
+      if (data.question) {
+        const answer = prompt(data.question);
+        const verifyRes = await fetch('/verify-security-answer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, answer })
+        });
+        const verifyData = await verifyRes.json();
+        alert(verifyData.message);
+      } else {
+        alert(data.message);
+      }
+    };
+
+    document.getElementById('signup_link').onclick = () => {
+      const newUser = prompt("Choose a username:");
+      const newPass = prompt("Choose a password:");
+      const newEmail = prompt("Enter your email:");
+      const securityQuestion = prompt("Enter a security question (e.g., 'Your pet's name?'):");
+      const securityAnswer = prompt("Answer to your security question:");
+
+
+      if (newUser && newPass && newEmail) {
+        const securityQuestion = prompt("Enter a security question (e.g., 'Your pet's name?'):");
+        const securityAnswer = prompt("Answer to your security question:");
+
+        fetch('/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: newUser,
+            password: newPass,
+            email: newEmail,
+            securityQuestion,
+            securityAnswer
+          })
+        })
+          .then(res => res.json())
+          .then(msg => alert(msg.message));
+      }
+
+    };
+
+    //vendor
+
+    document.getElementById('vendor_btn').onclick = () => {
+      document.getElementById('vendor_modal').style.display = 'block';
+    };
+
+    document.getElementById('vendor_login_submit').onclick = async () => {
+      const res = await fetch('/vendor-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: document.getElementById('vendor_user').value,
+          password: document.getElementById('vendor_pass').value
+        })
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        localStorage.setItem('username', document.getElementById('vendor_user').value);
+        window.location.href = 'vendor_1.1.html';
+
+      } else {
+        alert('Invalid vendor credentials');
+      }
+    };
+
+    document.getElementById('vendor_signup').onclick = () => {
+      const newVendor = prompt("Choose a vendor ID:");
+      const newPass = prompt("Choose a password:");
+      const newEmail = prompt("Enter your email:");
+
+      if (newVendor && newPass && newEmail) {
+        fetch('/vendor-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: newVendor, password: newPass, email: newEmail })
+        }).then(res => res.json())
+          .then(msg => alert(msg.message));
+      }
+    };
+
+    function loadProfile() {
+      const username = localStorage.getItem('username');
+      fetch('/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
+      })
+        .then(res => res.json())
+        .then(data => {
+          let div = document.getElementById('profile_section');
+          div.style.display = 'block';
+          div.innerHTML = `<h3>Welcome, ${username}</h3><h4>Booking History:</h4>`;
+          if (data.bookings.length === 0) {
+            div.innerHTML += "<p>No bookings yet.</p>";
+          } else {
+            data.bookings.forEach(b => {
+              div.innerHTML += `<p>${JSON.stringify(b)}</p>`;
+            });
+          }
+        });
+    }
+
+    document.getElementById("admin_btn").addEventListener("click", () => {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      if (username === "admin") {
+        fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              localStorage.setItem("username", "admin");
+              window.location.href = "admin.html";
+            } else {
+              alert("Invalid admin credentials");
+            }
+          });
+      }
+    });
+  </script>
+</body>
+
+</html>

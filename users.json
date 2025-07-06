@@ -1,0 +1,156 @@
+{
+  "users": {
+    "Gagan": {
+      "passwordHash": "$2b$10$ENWJfZwOyfhYu/S5D2/.5OGO4GtMUkByX9fDhzRd3iqEBGTPgzm4y",
+      "email": "gagan",
+      "bookings": [
+        {
+          "event": "movie",
+          "movie": "movie_2",
+          "date": "date_2",
+          "time": "time_2",
+          "tickets": "3"
+        },
+        {
+          "event": "concert",
+          "concert": "concert_2",
+          "date": "date_2",
+          "time": "time_3",
+          "section": "Economy",
+          "tickets": "3"
+        },
+        {
+          "event": "concert",
+          "concert": "concert_2",
+          "date": "date_2",
+          "time": "time_3",
+          "section": "Economy",
+          "tickets": "4"
+        },
+        {
+          "event": "movie",
+          "movie": "movie_1",
+          "date": "date_2",
+          "time": "time_2",
+          "tickets": "3"
+        },
+        {
+          "event": "movie",
+          "movie": "movie_2",
+          "date": "date_2",
+          "time": "time_2",
+          "tickets": "3"
+        }
+      ],
+      "wallet": null
+    },
+    "revanth": {
+      "passwordHash": "$2b$10$unF6SLORAiR/IFfm6m3Rz.2/ZPdoJh4HCnH0HysozgY60IAzeRqZW",
+      "email": "revanth-mentor@gmail.com",
+      "securityQuestion": "",
+      "securityAnswerHash": "$2b$10$YOAXdb3kJAf2if0rPYpOfudyJZyFY2VAZhSszVU5NPn2RRNgiIJRG",
+      "bookings": [],
+      "wallet": 500
+    },
+    "admin": {
+      "passwordHash": "$2b$10$u/ABcEdA.HkpcbGvRMA3oOxTPG.8Od./zvuDnFj6.AcLMBlhcoaSG",
+      "email": "admin@site.com",
+      "securityQuestion": "Admin secret?",
+      "securityAnswerHash": "$2b$10$i8JYOY2JqpkyoYRyiiy55.EWoUuVqwjMIlPVpeyKtd9v51Ibaknja",
+      "wallet": 0,
+      "bookings": []
+    },
+    "Obama": {
+      "passwordHash": "$2b$10$3v40w.bMTscQ7D4A/rfbq.IGtIvD.bW9z4IOve3fvZbVffO5Pk9Xi",
+      "email": "obama@nitt.edu",
+      "securityQuestion": "Whats ur high school name",
+      "securityAnswerHash": "$2b$10$WYY/X8rgSWfpZEtiPDfVy.K0Eb2uYcPUS6XGJYHfm0b1U5NJCYBpS",
+      "bookings": [
+        {
+          "event": "movie",
+          "movie": "movie_2",
+          "date": "date_2",
+          "time": "time_2",
+          "tickets": "3"
+        }
+      ],
+      "wallet": 200
+    },
+    "Person A": {
+      "passwordHash": "$2b$10$1BFIqjz9QRBavT7AFJ1f0uaDpSs8Pc8GeIbLlA3Jc8UAekEjBQCSm",
+      "email": "persona@gmail.com",
+      "securityQuestion": "school name",
+      "securityAnswerHash": "$2b$10$EWl63zQ7R/vWCkT6aLjisOLFwchag/NwzIrGW169BxhHmPb0x8spO",
+      "bookings": [
+        {
+          "event": "movie",
+          "movie": "movie_2",
+          "date": "date_2",
+          "time": "time_2",
+          "tickets": "5"
+        }
+      ],
+      "wallet": 0
+    }
+  },
+  "vendors": {
+    "1": {
+      "passwordHash": "$2b$10$PsHKT9Dwk9zFqALdS5vKA.aCQDheVgnzZeASShV5n8qvtul7w3g7i",
+      "email": "3",
+      "bookings": [
+        {
+          "event": "train",
+          "source": "a",
+          "destination": "b",
+          "trains": "c",
+          "date": "d",
+          "time": "2:00",
+          "Class": "AC, Economy"
+        }
+      ]
+    },
+    "gagan": {
+      "passwordHash": "$2b$10$YHGrkSqzxe1.nnL.uXrXz.AEKJktjSQZl.QCJXjnUyO9pLlzecTtW",
+      "email": "gagan",
+      "bookings": [
+        {
+          "event": "concert",
+          "concert": "Arijith Singh fr",
+          "date": "05-07-25",
+          "time": "5:00pm",
+          "section": "Economy"
+        }
+      ]
+    },
+    "a": {
+      "passwordHash": "$2b$10$WJL46qXnveAWv29fVb9cZuJsdNemJ8ZwprPr4XcDJw6ucD7JbFYfq",
+      "email": "c@gmail.com",
+      "bookings": [
+        {
+          "event": "train",
+          "source": "city1",
+          "destination": "city2",
+          "trains": "ABC express",
+          "date": "12-04-25",
+          "time": "2:00",
+          "Class": "AC, Economy"
+        }
+      ]
+    },
+    "Human\\": {
+      "passwordHash": "$2b$10$htLEsYpBT/rzai5Jhr5uyubTzkYW6VPeS1GdJnxylWAF9hBfNxnzq",
+      "email": "human@gmail.com",
+      "bookings": [
+        {
+          "event": "train",
+          "source": "city1",
+          "destination": "city2",
+          "trains": "nitt express",
+          "date": "12:00pm",
+          "time": "12:00pm",
+          "Class": "AC, Economy"
+        }
+      ]
+    }
+  }
+}
