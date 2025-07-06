@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #eee;
+      padding: 20px;
+    }
+
+    h2 {
+      margin-top: 30px;
+    }
+
+    pre {
+      background: #222;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Admin Dashboard</h1>
+  <button onclick="loadData()">Load Data</button>
+
+  <h2>Users</h2>
+  <pre id="user_block">Click "Load Data"</pre>
+
+  <h2>Vendors</h2>
+  <pre id="vendor_block"></pre>
+
+  <h2>Global Events</h2>
+  <pre id="event_block"></pre>
+
+  <script>
+    function loadData() {
+      fetch('/admin-data')
+        .then(res => res.json())
+        .then(data => {
+          // Users
+          let userHTML = "";
+          for (let user in data.users) {
+            const u = data.users[user];
+            userHTML += `<div><strong>${user}</strong><br>Email: ${u.email}<br>Wallet: ₹${u.wallet || 0}<br>Bookings: ${u.bookings?.length || 0}</div><hr>`;
+          }
+          document.getElementById('user_block').innerHTML = userHTML;
+
+          // Vendors
+          let vendorHTML = "";
+          for (let vendor in data.vendors) {
+            const v = data.vendors[vendor];
+            vendorHTML += `<div><strong>${vendor}</strong><br>Email: ${v.email}<br>Events Added: ${v.bookings?.length || 0}</div><hr>`;
+          }
+          document.getElementById('vendor_block').innerHTML = vendorHTML;
+
+          // Events
+          let eventHTML = "";
+          data.globalEvents.forEach((ev, idx) => {
+            eventHTML += `<div><strong>Event #${idx + 1}</strong><ul>`;
+            for (let key in ev) {
+              eventHTML += `<li><strong>${key}</strong>: ${ev[key]}</li>`;
+            }
+            eventHTML += "</ul></div><hr>";
+          });
+          document.getElementById('event_block').innerHTML = eventHTML;
+
+        });
+    }
+  </script>
+</body>
+
+</html>
